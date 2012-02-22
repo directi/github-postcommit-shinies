@@ -33,6 +33,7 @@ def add_label(repo, issue_id, labels)
 end
 
 def assign_issue(repo, issue_id, assignee)
+  puts "assiging to issue #{issue_id} #{issue_id.class} of repo #{repo} #{repo.class} #{assignee} #{assignee.class}"
   Github_Client.update_issue repo, issue_id, :assignee => assignee
 end
 

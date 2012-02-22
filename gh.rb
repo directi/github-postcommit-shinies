@@ -54,6 +54,8 @@ get '/test' do
 end
 
 post '/' do
+  p "posting #{params}"
+  return 'hi'
     push = JSON.parse(params[:payload])
     repo = push['repository']['name']
     owner = push['repository']['owner']['name']

@@ -3,7 +3,7 @@ require 'yaml'
 require 'json'
 require 'curb'
 
-config = YAML::load(File.open('config.yml'))
+config = YAML::load(File.open('config.yml')) rescue {"user" => ENV["gh_user"], "token" => ENV["gh_pass"]}
 
 set :sessions, true
 set :logging, true

@@ -32,7 +32,6 @@ def add_label(repo, issue, label)
 end
 
 def assign_issue(repo, issue_id, assignee)
-  issue = Github_Client.issue(issue) rescue nil
   Github_Client.update_issue repo, issue_id, :assignee => assignee
 end
 

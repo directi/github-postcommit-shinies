@@ -21,14 +21,15 @@ def get_labels(user, repo, issue)
     json['issue']['labels']
 end
 
-def add_label(repo, issue, label)
-    endpoint = options.gh_add_label.gsub(':user', user).gsub(':repo', repo).gsub(':number', issue).gsub(':label', label)
-    c = Curl::Easy.new(options.gh_api + endpoint)
-    c.http_auth_types = :basic
-    c.username = options.gh_user
-    c.password = options.gh_token
-    c.perform
-    p c.body_str
+def add_label(repo, issue_id, labels)
+  Github_Client.update_issue repo, issue_id, :labels => labels
+    # endpoint = options.gh_add_label.gsub(':user', user).gsub(':repo', repo).gsub(':number', issue).gsub(':label', label)
+    # c = Curl::Easy.new(options.gh_api + endpoint)
+    # c.http_auth_types = :basic
+    # c.username = options.gh_user
+    # c.password = options.gh_token
+    # c.perform
+    # p c.body_str
 end
 
 def assign_issue(repo, issue_id, assignee)
@@ -44,7 +45,9 @@ post '/' do
     repo = "#{push['repository']['owner']['name']}/#{push['repository']['name']}"
     push['commits'].each do |c|
         m = c['message']
+        puts "message #{m}"
         issue_id = m.scan(/[^#]\#(\d+)[^\d+]/)[0]
+        puts "issue id #{issue_id}"
         next unless issue_id
         begin 
           user = m.scan(/\=[a-zA-Z0-9]+/)[0].split(//)[1..-1].join

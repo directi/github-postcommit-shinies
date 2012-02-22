@@ -10,31 +10,10 @@ set :sessions, true
 set :logging, true
 set :port, 3000
 
-def get_labels(user, repo, issue)
-    endpoint = options.gh_issue.gsub(':user', user).gsub(':repo', repo).gsub(':number', issue)
-    c = Curl::Easy.new(options.gh_api + endpoint)
-    c.http_auth_types = :basic
-    c.username = options.gh_user
-    c.password = options.gh_token
-    c.perform
-    json = JSON.parse(c.body_str)
-    json['issue']['labels']
-end
+def update_issue(repo, issue_id, options)
+  Github_Client.post "/repos/#{repo}/issues/#{issue_id}", options
+end  
 
-def add_label(repo, issue_id, labels)
-  Github_Client.update_issue repo, issue_id, :labels => labels
-    # endpoint = options.gh_add_label.gsub(':user', user).gsub(':repo', repo).gsub(':number', issue).gsub(':label', label)
-    # c = Curl::Easy.new(options.gh_api + endpoint)
-    # c.http_auth_types = :basic
-    # c.username = options.gh_user
-    # c.password = options.gh_token
-    # c.perform
-    # p c.body_str
-end
-
-def assign_issue(repo, issue_id, assignee)
-  Github_Client.post "/repos/#{repo}/issues/#{issue_id}", :assignee => assignee
-end
 
 get '/test' do
   p 'hello world'
@@ -45,19 +24,15 @@ post '/' do
     repo = "#{push['repository']['owner']['name']}/#{push['repository']['name']}"
     push['commits'].each do |c|
         m = c['message']
-        puts "message #{m}"
         issue_id = m.scan(/[^#]\#(\d+)(?:[^\d+]|\b)/)[0][0].to_i rescue nil
         next unless issue_id
-        puts "issue id #{issue_id}"
         begin 
           user = m.scan(/\=[a-zA-Z0-9]+/)[0].split(//)[1..-1].join
-          assign_issue(repo, issue_id, user)
+          update_issue repo, issue_id, :assignee => assignee
         rescue => e
           p e.to_s
         end
-        # labels = m.scan(/\~[a-zA-Z0-9]+/)
-        # labels.each do |l| 
-        #   add_label(repo, issue_id, l.gsub('~', ''))
-        # end
+        labels = m.scan(/\~([a-zA-Z0-9]+)/).flatten
+        update_issue repo, issue_id, :labels => labels
     end
 end

@@ -11,10 +11,12 @@ set :logging, true
 set :port, 3000
 
 def update_issue(repo, issue_id, options)
+  p "gonna to #{repo} issue #{issue_id} add #{options}"
   Github_Client.post "/repos/#{repo}/issues/#{issue_id}", options
 end
 
 def closed?(repo, issue_id)
+  p "gonna get #{repo} #{issue_id}"
   Github_Client.issue(repo, issue_id).state == 'closed'
 end    
 

@@ -54,7 +54,7 @@ get '/test' do
 end
 
 post '/' do
-  p "posting #{params}"
+  p "posting "
   return 'hi'
     # push = JSON.parse(params[:payload])
     # repo = push['repository']['name']

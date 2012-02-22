@@ -47,9 +47,9 @@ post '/' do
     push['commits'].each do |c|
         m = c['message']
         puts "message #{m}"
-        issue_id = m.scan(/[^#]\#(\d+)[^\d+]/)[0]
-        puts "issue id #{issue_id}"
+        issue_id = m.scan(/[^#]\#(\d+)(?:[^\d+]|\b)/)[0][0].to_i rescue nil
         next unless issue_id
+        puts "issue id #{issue_id}"
         begin 
           user = m.scan(/\=[a-zA-Z0-9]+/)[0].split(//)[1..-1].join
           assign_issue(repo, issue_id, user)

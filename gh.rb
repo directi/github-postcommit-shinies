@@ -21,7 +21,7 @@ def get_labels(user, repo, issue)
     json['issue']['labels']
 end
 
-def add_label(user, repo, issue, label)
+def add_label(repo, issue, label)
     endpoint = options.gh_add_label.gsub(':user', user).gsub(':repo', repo).gsub(':number', issue).gsub(':label', label)
     c = Curl::Easy.new(options.gh_api + endpoint)
     c.http_auth_types = :basic
@@ -45,8 +45,8 @@ post '/' do
     repo = "#{push['repository']['owner']['name']}/#{push['repository']['name']}"
     push['commits'].each do |c|
         m = c['message']
-        issue = m.scan(/[^#]\#(\d+)[^\d+]/)[0]
-        next unless issue
+        issue_id = m.scan(/[^#]\#(\d+)[^\d+]/)[0]
+        next unless issue_id
         begin 
           user = m.scan(/\=[a-zA-Z0-9]+/)[0].split(//)[1..-1].join
           assign_issue(repo, issue_id, user)
@@ -55,7 +55,7 @@ post '/' do
         end
         # labels = m.scan(/\~[a-zA-Z0-9]+/)
         # labels.each do |l| 
-        #   add_label(owner, repo, issue[0], l.gsub('~', ''))
+        #   add_label(repo, issue_id, l.gsub('~', ''))
         # end
     end
 end

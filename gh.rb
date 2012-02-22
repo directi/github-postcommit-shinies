@@ -33,7 +33,7 @@ post '/' do
         begin 
           user = m.scan(/\=[a-zA-Z0-9]+/)[0].split(//)[1..-1].join
           labels = m.scan(/\~([a-zA-Z0-9\-]+)/).flatten
-          labels << "pm-review" if !m.scan(/\#nopm/)[0] && closed?(repo, issue_id)
+          labels << "pm-review" if !m.scan(/\#nopm/)[0] && closed?(repo, issue_id) && push['ref'] == 'master'
           update_issue repo, issue_id, :assignee => user, :labels => labels.uniq
         rescue => e
           p e.to_s

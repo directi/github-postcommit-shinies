@@ -12,7 +12,11 @@ set :port, 3000
 
 def update_issue(repo, issue_id, options)
   Github_Client.post "/repos/#{repo}/issues/#{issue_id}", options
-end  
+end
+
+def closed?(repo, issue_id)
+  Github_Client.issue(repo, issue_id).state == 'closed'
+end    
 
 
 get '/test' do
@@ -28,11 +32,11 @@ post '/' do
         next unless issue_id
         begin 
           user = m.scan(/\=[a-zA-Z0-9]+/)[0].split(//)[1..-1].join
-          update_issue repo, issue_id, :assignee => assignee
+          labels = m.scan(/\~([a-zA-Z0-9]+)/).flatten
+          labels << "pm-review" if closed? repo, issue_id
+          update_issue repo, issue_id, :assignee => user, :labels => labels
         rescue => e
           p e.to_s
         end
-        labels = m.scan(/\~([a-zA-Z0-9]+)/).flatten
-        update_issue repo, issue_id, :labels => labels
     end
 end

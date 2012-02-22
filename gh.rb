@@ -54,25 +54,23 @@ get '/test' do
 end
 
 post '/' do
-  p "posting #{params.inspect}"
-  return 'hi'
-    # push = JSON.parse(params[:payload])
-    # repo = push['repository']['name']
-    # owner = push['repository']['owner']['name']
-    # push['commits'].each do |c|
-    #     m = c['message']
-    #     issue = m.scan(/[^\#][0-9]+/)
-    #         if issue.size == 1 #only check for other goodies if an issue is mentioned
-    #             begin 
-    #                 user = m.scan(/\=[a-zA-Z0-9]+/)[0].split(//)[1..-1].join
-    #                 assign_issue(owner, repo, issue[0], user)
-    #             rescue => e
-    #               p e.to_s
-    #             end
-    #             labels = m.scan(/\~[a-zA-Z0-9]+/)
-    #             labels.each do |l| 
-    #                 add_label(owner, repo, issue[0], l.gsub('~', ''))
-    #             end
-    #         end
-    # end
+    push = JSON.parse(params[:payload])
+    repo = push['repository']['name']
+    owner = push['repository']['owner']['name']
+    push['commits'].each do |c|
+        m = c['message']
+        issue = m.scan(/[^\#][0-9]+/)
+            if issue.size == 1 #only check for other goodies if an issue is mentioned
+                begin 
+                    user = m.scan(/\=[a-zA-Z0-9]+/)[0].split(//)[1..-1].join
+                    assign_issue(owner, repo, issue[0], user)
+                rescue => e
+                  p e.to_s
+                end
+                labels = m.scan(/\~[a-zA-Z0-9]+/)
+                labels.each do |l| 
+                    add_label(owner, repo, issue[0], l.gsub('~', ''))
+                end
+            end
+    end
 end

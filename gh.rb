@@ -23,20 +23,21 @@ get '/test' do
   p 'hello world'
 end
 
+def get_labels(m, issue_id, push)
+  labels = m.scan(/\~([a-zA-Z0-9\-]+)/).flatten
+  labels << "pm-review" if !m.scan(/\#nopm/)[0] && closed?(repo, issue_id) && push['ref'] == 'master'
+  labels.uniq
+end  
+
 post '/' do
-    push = JSON.parse(params[:payload])
-    repo = "#{push['repository']['owner']['name']}/#{push['repository']['name']}"
-    push['commits'].each do |c|
-        m = c['message']
-        issue_id = m.scan(/[^#]\#(\d+)(?:[^\d+]|\b)/)[0][0].to_i rescue nil
-        next unless issue_id
-        begin 
-          user = m.scan(/\=[a-zA-Z0-9]+/)[0].split(//)[1..-1].join
-          labels = m.scan(/\~([a-zA-Z0-9\-]+)/).flatten
-          labels << "pm-review" if !m.scan(/\#nopm/)[0] && closed?(repo, issue_id) && push['ref'] == 'master'
-          update_issue repo, issue_id, :assignee => user, :labels => labels.uniq
-        rescue => e
-          p e.to_s
-        end
-    end
+  push = JSON.parse(params[:payload])
+  repo = "#{push['repository']['owner']['name']}/#{push['repository']['name']}"
+  push['commits'].each do |c|
+    m = c['message']
+    issue_id = m.scan(/[^#]\#(\d+)(?:[^\d+]|\b)/)[0][0].to_i rescue nil
+    next unless issue_id
+    user = m.scan(/\=([a-zA-Z0-9]+)/)[0][0] rescue nil
+    options = {:labels => get_labels(m, issue_id, push)}.merge(user ? {:assignee => user} : {})
+    update_issue repo, issue_id, options
+  end
 end

@@ -36,6 +36,10 @@ post '/' do
     github_issue = Github_Client.issue(repo, issue_id)
 
     labels = m.scan(/\~([a-zA-Z0-9\-]+)/).flatten + github_issue.labels.map(&:name)
+    puts !m.scan(/\#nopm/)[0]
+    puts closed?(github_issue)
+    puts push['ref'] == 'master'
+    puts !m.scan(/\#nopm/)[0] && closed?(github_issue) && push['ref'] == 'master'
     labels << "pm-review" if !m.scan(/\#nopm/)[0] && closed?(github_issue) && push['ref'] == 'master'
     labels.uniq
 

@@ -11,6 +11,7 @@ set :logging, true
 set :port, 3000
 
 def update_issue(repo, issue_id, options)
+  puts "updating issue #{issue_id} with #{options}"
   Github_Client.post "/repos/#{repo}/issues/#{issue_id}", options
 end
 

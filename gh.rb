@@ -13,7 +13,8 @@ set :port, 3000
 def update_issue(repo, issue_id, options)
   puts "updating issue #{issue_id} with #{options}"
   Github_Client.post "/repos/#{repo}/issues/#{issue_id}", options
-rescue puts "exception #{$!.inspect}"
+rescue 
+  puts "exception #{$!.inspect}"
 end
 
 def closed?(github_issue)

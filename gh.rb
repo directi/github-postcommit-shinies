@@ -32,15 +32,15 @@ post '/' do
     issue_id = m.scan(/[^#]\#(\d+)(?:[^\d+]|\b)/)[0][0].to_i rescue nil
     next unless issue_id
     user = m.scan(/\=([a-zA-Z0-9]+)/)[0][0] rescue nil
-    
+
     github_issue = Github_Client.issue(repo, issue_id)
 
     labels = m.scan(/\~([a-zA-Z0-9\-]+)/).flatten + github_issue.labels.map(&:name)
     labels << "pm-review" if !m.scan(/\#nopm/)[0] && closed?(github_issue) && push['ref'] == 'master'
     labels.uniq
-    
+
     options = {:labels => labels}.merge(user ? {:assignee => user} : {})
     update_issue repo, issue_id, options
-    "done"
   end
+  "done"
 end

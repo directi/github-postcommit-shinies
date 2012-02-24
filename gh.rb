@@ -37,7 +37,7 @@ post '/' do
 
     labels = m.scan(/\~([a-zA-Z0-9\-]+)/).flatten + github_issue.labels.map(&:name)
     puts push.inspect
-    labels << "pm-review" if !m.scan(/\#nopm/)[0] && closed?(github_issue) && push['ref'] == 'master'
+    labels << "pm-review" if !m.scan(/\#nopm/)[0] && closed?(github_issue) && push['ref'] == 'refs/heads/master'
     labels.uniq
 
     options = {:labels => labels}.merge(user ? {:assignee => user} : {})

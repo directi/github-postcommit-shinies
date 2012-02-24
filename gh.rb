@@ -23,9 +23,6 @@ get '/test' do
   p 'hello world'
 end
 
-def get_labels(m, issue_id, push)
-end  
-
 post '/' do
   push = JSON.parse(params[:payload])
   repo = "#{push['repository']['owner']['name']}/#{push['repository']['name']}"
@@ -39,7 +36,7 @@ post '/' do
     labels << "pm-review" if !m.scan(/\#nopm/)[0] && closed?(repo, issue_id) && push['ref'] == 'master'
     labels.uniq
     
-    options = {:labels => get_labels(m, issue_id, push)}.merge(user ? {:assignee => user} : {})
+    options = {:labels => labels}.merge(user ? {:assignee => user} : {})
     update_issue repo, issue_id, options
   end
 end
